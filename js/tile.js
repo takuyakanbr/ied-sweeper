@@ -1,15 +1,16 @@
 'use strict';
 
 /**
- * An enum representing the type of a tile
+ * An enum representing the type of a tile.
  */
 var TileType = Object.freeze({
     EMPTY: 'empty',
-    IED: 'ied'
+    IED: 'ied',
+    DEFUSED: 'defused'
 });
 
 /**
- * An enum representing the state of a tile
+ * An enum representing the state of a tile.
  */
 var TileState = Object.freeze({
     HIDDEN: 'hidden',
@@ -28,8 +29,8 @@ function Tile($container, x, y) {
     this.x = x;
     this.y = y;
     this.danger = 0;
-    this.type = TileType.EMPTY;
     this.state = TileState.HIDDEN;
+    this.type = TileType.EMPTY;
 
     this.$e = document.createElement('td');
     this.$e.dataset.x = x;
@@ -38,24 +39,20 @@ function Tile($container, x, y) {
     $container.appendChild(this.$e);
 }
 
-Tile.prototype.reset = function () {
-    this.danger = 0;
-    this.type = TileType.EMPTY;
-    this.state = TileState.HIDDEN;
-    this._updateElement();
+Tile.prototype.getState = function () {
+    return this.state;
 }
 
 Tile.prototype.getType = function () {
     return this.type;
 }
 
-Tile.prototype.setType = function (type) {
-    this.type = type;
-    this._updateElement();
+Tile.prototype.incrementDanger = function () {
+    this.danger++;
 }
 
-Tile.prototype.getState = function () {
-    return this.state;
+Tile.prototype.isSafe = function () {
+    return this.type === TileType.EMPTY && this.danger === 0;
 }
 
 Tile.prototype.setState = function (state) {
@@ -63,9 +60,22 @@ Tile.prototype.setState = function (state) {
     this._updateElement();
 }
 
+Tile.prototype.setType = function (type) {
+    this.type = type;
+    this._updateElement();
+}
+
+// Reset this tile to its default configuration.
+Tile.prototype.reset = function () {
+    this.danger = 0;
+    this.state = TileState.HIDDEN;
+    this.type = TileType.EMPTY;
+    this._updateElement();
+}
+
 Tile.prototype._updateElement = function () {
     var className = 'grid-tile';
-    this.$e.innerText = '';
+
     switch (this.state) {
         case TileState.HIDDEN:
             className += ' grid-tile-hidden';
@@ -74,12 +84,15 @@ Tile.prototype._updateElement = function () {
             className += ' grid-tile-visible';
             if (this.type === TileType.IED)
                 className += ' grid-tile-ied';
+            else if (this.type === TileType.DEFUSED)
+                className += ' grid-tile-defused';
             else if (this.danger > 0)
-                this.$e.innerText = this.danger;
+                className += ' grid-tile-danger grid-tile-danger' + this.danger;
             break;
         case TileState.FLAGGED:
             className += ' grid-tile-flagged';
             break;
     }
+
     this.$e.className = className;
 }

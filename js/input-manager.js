@@ -1,10 +1,18 @@
 
+var InputMode = Object.freeze({
+    SEARCH: 'search',
+    FLAG: 'flag'
+});
+
 /**
  * Handles keyboard and mouse events
  * @constructor
  */
 function InputManager() {
     this.events = {};
+    this.mode = InputMode.SEARCH;
+
+    // this.attachListeners();
 }
 
 InputManager.prototype.on = function (evt, callback) {
@@ -30,4 +38,35 @@ InputManager.prototype.bindButtonPress = function (elementId, fn) {
 };
 
 InputManager.prototype.attachGridListeners = function ($grid) {
+    var self = this;
+
+    var clickHandler = function (evt) {
+        var $e = evt.target;
+        if ($e.classList.contains('grid-tile')) {
+            evt.preventDefault();
+            var data = { x: parseInt($e.dataset.x), y: parseInt($e.dataset.y) };
+            switch (self.mode) {
+                case InputMode.SEARCH:
+                    self.emit('search', data);
+                    break;
+                case InputMode.FLAG:
+                    self.emit('flag', data);
+                    break;
+            }
+        }
+    };
+
+    // left click: search or flag depending on current mode
+    $grid.addEventListener('click', clickHandler);
+    $grid.addEventListener('touchend', clickHandler);
+
+    // right click: always flag
+    $grid.addEventListener('contextmenu', function (evt) {
+        var $e = evt.target;
+        if ($e.classList.contains('grid-tile')) {
+            evt.preventDefault();
+            var data = { x: parseInt($e.dataset.x), y: parseInt($e.dataset.y) };
+            self.emit('flag', data);
+        }
+    });
 }
