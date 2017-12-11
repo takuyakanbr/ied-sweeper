@@ -17,15 +17,25 @@ function Grid($container, rows, cols) {
 
 Grid.prototype.getTile = function (x, y) {
     return this.tiles[y][x];
-}
+};
+
+Grid.prototype.hasIED = function (x, y) {
+    return this.getTile(x, y).getType() === TileType.IED;
+};
 
 Grid.prototype.isFlagged = function (x, y) {
     return this.getTile(x, y).getState() === TileState.FLAGGED;
-}
+};
 
 Grid.prototype.isVisible = function (x, y) {
     return this.getTile(x, y).getState() === TileState.VISIBLE;
-}
+};
+
+Grid.prototype.blockIED = function (x, y) {
+    var tile = this.getTile(x, y);
+    if (tile.getType() === TileType.IED)
+        tile.setType(TileType.BLOCKED);
+};
 
 // Flag the tile at (x, y).
 // Returns true if the tile was successfully flagged.
@@ -36,7 +46,7 @@ Grid.prototype.flagTile = function (x, y) {
         return true;
     }
     return false;
-}
+};
 
 // Unflag the tile at (x, y).
 // Returns true if the tile was successfully unflagged.
@@ -47,7 +57,7 @@ Grid.prototype.unflagTile = function (x, y) {
         return true;
     }
     return false;
-}
+};
 
 // Search the tile at (x, y). If this is a safe tile, its neighbors will
 // automatically be searched. Returns the number of tiles set to visible.
@@ -76,13 +86,13 @@ Grid.prototype.searchTile = function (x, y) {
     }
 
     return count;
-}
+};
 
 // Adds a random number of IEDs to the grid, avoiding the tile at (x, y).
-// Difficulty affects the number of IEDs, and should be between 0 and 100.
+// Difficulty affects the number of IEDs, and should be between 0 and 10.
 Grid.prototype.randomize = function (x, y, difficulty) {
     var totalTiles = this.rows * this.cols;
-    var bonus = Math.min(difficulty, 100) * 0.090;
+    var bonus = Math.min(Math.max(0, difficulty / 10), 1) * 0.090;
     var min = (0.110 + bonus) * totalTiles;
     var max = (0.140 + bonus) * totalTiles;
     var ieds = getRandomInt(min, max);
@@ -100,7 +110,7 @@ Grid.prototype.randomize = function (x, y, difficulty) {
     }
 
     return ieds;
-}
+};
 
 // Reset the grid to its default configuration.
 Grid.prototype.reset = function () {
@@ -109,7 +119,7 @@ Grid.prototype.reset = function () {
             this.getTile(x, y).reset();
         }
     }
-}
+};
 
 // Run the specified function on all the tiles surroundng (x, y).
 Grid.prototype.surrounding = function (x, y, fn) {
@@ -122,7 +132,7 @@ Grid.prototype.surrounding = function (x, y, fn) {
             fn(this.getTile(rx, ry));
         }
     }
-}
+};
 
 // Set an IED at (x, y), and increment danger of surrounding tiles.
 Grid.prototype._setIED = function (x, y) {
@@ -130,7 +140,7 @@ Grid.prototype._setIED = function (x, y) {
     this.surrounding(x, y, function (tile) {
         tile.incrementDanger();
     });
-}
+};
 
 // Initialize this grid and display it in the specified container.
 Grid.prototype._initialize = function ($container) {
@@ -151,4 +161,4 @@ Grid.prototype._initialize = function ($container) {
     }
 
     $container.appendChild(this.$e);
-}
+};

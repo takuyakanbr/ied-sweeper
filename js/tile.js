@@ -6,7 +6,8 @@
 var TileType = Object.freeze({
     EMPTY: 'empty',
     IED: 'ied',
-    DEFUSED: 'defused'
+    DEFUSED: 'defused',
+    BLOCKED: 'blocked'
 });
 
 /**
@@ -41,29 +42,30 @@ function Tile($container, x, y) {
 
 Tile.prototype.getState = function () {
     return this.state;
-}
+};
 
 Tile.prototype.getType = function () {
     return this.type;
-}
+};
 
 Tile.prototype.incrementDanger = function () {
     this.danger++;
-}
+};
 
+// Returns true if this tile is empty and has a danger level of 0.
 Tile.prototype.isSafe = function () {
     return this.type === TileType.EMPTY && this.danger === 0;
-}
+};
 
 Tile.prototype.setState = function (state) {
     this.state = state;
     this._updateElement();
-}
+};
 
 Tile.prototype.setType = function (type) {
     this.type = type;
     this._updateElement();
-}
+};
 
 // Reset this tile to its default configuration.
 Tile.prototype.reset = function () {
@@ -71,7 +73,7 @@ Tile.prototype.reset = function () {
     this.state = TileState.HIDDEN;
     this.type = TileType.EMPTY;
     this._updateElement();
-}
+};
 
 Tile.prototype._updateElement = function () {
     var className = 'grid-tile';
@@ -86,6 +88,8 @@ Tile.prototype._updateElement = function () {
                 className += ' grid-tile-ied';
             else if (this.type === TileType.DEFUSED)
                 className += ' grid-tile-defused';
+            else if (this.type === TileType.BLOCKED)
+                className += ' grid-tile-blocked';
             else if (this.danger > 0)
                 className += ' grid-tile-danger grid-tile-danger' + this.danger;
             break;
@@ -95,4 +99,4 @@ Tile.prototype._updateElement = function () {
     }
 
     this.$e.className = className;
-}
+};

@@ -12,7 +12,7 @@ function InputManager() {
     this.events = {};
     this.mode = InputMode.SEARCH;
 
-    // this.attachListeners();
+    this.attachListeners();
 }
 
 InputManager.prototype.on = function (evt, callback) {
@@ -28,6 +28,16 @@ InputManager.prototype.emit = function (evt, data) {
         callbacks.forEach(function (callback) {
             callback(data);
         });
+    }
+};
+
+InputManager.prototype.switchInputMode = function () {
+    if (this.mode === InputMode.SEARCH) {
+        this.mode = InputMode.FLAG;
+        this.$mode.innerText = 'Flag';
+    } else if (this.mode === InputMode.FLAG) {
+        this.mode = InputMode.SEARCH;
+        this.$mode.innerText = 'Search';
     }
 };
 
@@ -69,4 +79,19 @@ InputManager.prototype.attachGridListeners = function ($grid) {
             self.emit('flag', data);
         }
     });
-}
+};
+
+InputManager.prototype.attachListeners = function () {
+    var self = this;
+
+    this.$mode = document.getElementById('stats-mode');
+
+    this.bindButtonPress('stats-mode', function (evt) {
+        evt.preventDefault();
+        self.switchInputMode();
+    });
+    this.bindButtonPress('stats-complete', function (evt) {
+        evt.preventDefault();
+        self.emit('complete');
+    });
+};

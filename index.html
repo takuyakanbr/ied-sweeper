@@ -10,7 +10,33 @@
 </head>
 <body>
     <div id="game-container">
-        <div id="grid-container"></div>
+        <div id="game-alert-box" class="alert-box hidden">
+            <div id="game-alert-message" class="alert-message">Alert</div>
+        </div>
+        <div id="grid-container">
+        </div>
+        <div id="info-bar">
+            <div id="game-stats">
+                <table>
+                    <tr class="stats-header">
+                        <td width="60">armor</td>
+                        <td width="60">moves</td>
+                        <td width="70">cleared</td>
+                        <td width="60">flags</td>
+                        <td width="70">mode</td>
+                        <td width="90"></td>
+                    </tr>
+                    <tr class="stats-data">
+                        <td id="stats-armor">3 / 3</td>
+                        <td id="stats-moves">0</td>
+                        <td id="stats-cleared">0.0%</td>
+                        <td id="stats-flags">0</td>
+                        <td><a href="#" class="button" id="stats-mode">Search</a></td>
+                        <td><a href="#" class="button" id="stats-complete">Complete</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
     <script src="js/util.js"></script>
     <script src="js/tile.js"></script>
