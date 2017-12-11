@@ -25,15 +25,13 @@ table {
     display: inline-block;
     border-radius: 2px;
     padding: 3px 6px;
+    min-width: 40px;
     -webkit-transition: background-color .2s, color .2s;
     transition: background-color .2s, color .2s;
 }
 .button:hover, .button:focus {
     color: #fafcff;
     background-color: #a1a4a9;
-}
-.hidden {
-    display: none;
 }
 .alert-box {
     top: 15%;
@@ -48,7 +46,15 @@ table {
     padding: 7px 18px;
     display: inline;
     background-color: rgb(230, 232, 232);
-    background-color: rgba(230, 232, 232, 0.7);
+    background-color: rgba(230, 232, 232, 0.75);
+}
+@-webkit-keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 @-webkit-keyframes blink {
     0% { opacity: 0; }
@@ -62,17 +68,13 @@ table {
     75% { opacity: 1; }
     100% { opacity: 0; }
 }
-.blink-once {
-    -webkit-animation-duration: 0.4s;
-    animation-duration: 0.4s;
-    -webkit-animation-fill-mode: both;
-    animation-fill-mode: both;
+.fade-in {
+    -webkit-animation: fadeIn 0.5s ease-in;
+    animation: fadeIn 0.5s ease-in;
 }
 .blink-once {
-    -webkit-animation-duration: 2s;
-    animation-duration: 2s;
-    -webkit-animation-name: blink;
-    animation-name: blink;
+    -webkit-animation: blink 2s;
+    animation: blink 2s;
 }
 
 
@@ -99,28 +101,40 @@ table {
 .grid-tile-visible {
     background-color: #f1f4f9;
 }
-.grid-tile-hidden, .grid-tile-flagged {
+.grid-tile-hidden {
     background-color: #c1c4c9;
 }
-.grid-tile-hidden:hover, .grid-tile-hidden:focus, 
-.grid-tile-flagged:hover, .grid-tile-flagged:focus {
+.grid-tile-hidden:hover, .grid-tile-hidden:focus {
     cursor: pointer;
     background-color: #d1d4d9;
+}
+.grid-tile-flag1, .grid-tile-flag2 {
+    background-color: #dadcdf;
+}
+.grid-tile-flag1:hover, .grid-tile-flag1:focus,
+.grid-tile-flag2:hover, .grid-tile-flag2:focus {
+    cursor: pointer;
+    background-color: #e1e4e9;
 }
 .grid-tile-ied {
     background-color: #ef5350;
 }
-.grid-tile-defused {
+.grid-tile-disarmed {
     background-color: #9CCC65;
 }
 .grid-tile-blocked {
     background-color: #FFCA28;
 }
 
-.grid-tile-flagged::before {
+.grid-tile-flag1::before {
     content: '!';
     font-weight: bold;
-    color: #cc5500;
+    color: #D84315;
+}
+.grid-tile-flag2::before {
+    content: '0';
+    font-weight: bold;
+    color: #558B2F;
 }
 .grid-tile-danger1::before {
     content: '1';
@@ -155,22 +169,37 @@ table {
     color: #546E7A;
 }
 
-#info-bar {
+#info-bar-container {
     display: flex;
     justify-content: center;
     margin: 5px 15px 15px;
 }
-#game-stats {
-    display: inline-block;
+.info-bar {
     border: 1px solid #546E7A;
     padding: 5px;
     border-radius: 5px;
 }
-.stats-header {
+.info-bar-byline td {
+    padding: 5px;
+}
+.info-bar-header {
     font-size: 0.9em;
     font-variant: small-caps;
     color: #546E7A;
 }
-.stats-data {
+.info-bar-data {
     font-size: 1.1em;
+}
+.confirm-qns {
+    padding: 0 12px 0 6px;
+}
+#result-text {
+    color: #2E7D32;
+}
+#lost-text {
+    color: #c62828;
+}
+
+.hidden {
+    display: none;
 }

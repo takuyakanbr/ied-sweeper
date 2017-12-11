@@ -24,7 +24,8 @@ Grid.prototype.hasIED = function (x, y) {
 };
 
 Grid.prototype.isFlagged = function (x, y) {
-    return this.getTile(x, y).getState() === TileState.FLAGGED;
+    var state = this.getTile(x, y).getState();
+    return state === TileState.FLAG1 || state === TileState.FLAG2;
 };
 
 Grid.prototype.isVisible = function (x, y) {
@@ -37,26 +38,36 @@ Grid.prototype.blockIED = function (x, y) {
         tile.setType(TileType.BLOCKED);
 };
 
-// Flag the tile at (x, y).
-// Returns true if the tile was successfully flagged.
-Grid.prototype.flagTile = function (x, y) {
+// Mark or unmark the tile at (x, y) as IED.
+// Returns the net increase in number of flags.
+Grid.prototype.markIED = function (x, y) {
     var tile = this.getTile(x, y);
     if (tile.getState() === TileState.HIDDEN) {
-        tile.setState(TileState.FLAGGED);
-        return true;
+        tile.setState(TileState.FLAG1);
+        return 1;
+    } else if (tile.getState() === TileState.FLAG1) {
+        tile.setState(TileState.HIDDEN);
+        return -1;
+    } else if (tile.getState() === TileState.FLAG2) {
+        tile.setState(TileState.FLAG1);
     }
-    return false;
+    return 0;
 };
 
-// Unflag the tile at (x, y).
-// Returns true if the tile was successfully unflagged.
-Grid.prototype.unflagTile = function (x, y) {
+// Mark or unmark the tile at (x, y) as safe.
+// Returns the net increase in number of flags.
+Grid.prototype.markSafe = function (x, y) {
     var tile = this.getTile(x, y);
-    if (tile.getState() === TileState.FLAGGED) {
+    if (tile.getState() === TileState.HIDDEN) {
+        tile.setState(TileState.FLAG2);
+        return 1;
+    } else if (tile.getState() === TileState.FLAG2) {
         tile.setState(TileState.HIDDEN);
-        return true;
+        return -1;
+    } else if (tile.getState() === TileState.FLAG1) {
+        tile.setState(TileState.FLAG2);
     }
-    return false;
+    return 0;
 };
 
 // Search the tile at (x, y). If this is a safe tile, its neighbors will
@@ -88,13 +99,43 @@ Grid.prototype.searchTile = function (x, y) {
     return count;
 };
 
+// Set all tiles to visible. Returns an object containing statistics
+// about the board: { markers, disarmed, active }.
+Grid.prototype.showAllTiles = function () {
+    var markers = 0;
+    var disarmed = 0;
+    var active = 0;
+
+    for (var y = 0; y < this.cols; y++) {
+        for (var x = 0; x < this.rows; x++) {
+            var tile = this.getTile(x, y);
+
+            if (tile.getState() === TileState.FLAG1) {
+                markers++;
+
+                // disarm IEDs on marked tiles
+                if (tile.getType() === TileType.IED) {
+                    tile.setType(TileType.DISARMED);
+                    disarmed++;
+                }
+            } else if (tile.getType() === TileType.IED) {
+                active++;
+            }
+
+            tile.setState(TileState.VISIBLE);
+        }
+    }
+
+    return { markers: markers, disarmed: disarmed, active: active };
+};
+
 // Adds a random number of IEDs to the grid, avoiding the tile at (x, y).
 // Difficulty affects the number of IEDs, and should be between 0 and 10.
 Grid.prototype.randomize = function (x, y, difficulty) {
     var totalTiles = this.rows * this.cols;
     var bonus = Math.min(Math.max(0, difficulty / 10), 1) * 0.090;
     var min = (0.110 + bonus) * totalTiles;
-    var max = (0.140 + bonus) * totalTiles;
+    var max = (0.130 + bonus) * totalTiles;
     var ieds = getRandomInt(min, max);
 
     var count = 0;

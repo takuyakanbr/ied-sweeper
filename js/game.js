@@ -1,10 +1,9 @@
 'use strict';
 
 var GameState = Object.freeze({
-    STARTED: 'started', // initial state
-    CLEARED: 'cleared', // cleared board
-    COMPLETED: 'completed', // completed all levels
-    GAMEOVER: 'gameover' // game lost
+    STARTED: 'started',
+    COMPLETED: 'completed',
+    GAMEOVER: 'gameover'
 });
 
 /**
@@ -22,7 +21,9 @@ function Game(opts) {
     // - state variables -
     this.state = GameState.STARTED;
     this.level = 0;
-    this.score = 0;
+    this.totalScore = 0;
+    this.totalMoves = 0;
+    this.totalDisarmed = 0;
     this.armor = 3;
     this.ieds = 0;
     this.flags = 0;
@@ -31,27 +32,96 @@ function Game(opts) {
     this.cleared = 0;
 
     this.setup();
+    this.newCampaign();
 }
 
-Game.prototype.flagTile = function (x, y) {
-    if (this.state !== GameState.STARTED) return;
+// Use an armor to shield from an IED.
+// Returns true if an armor was used, or false if there was no armor.
+Game.prototype.applyArmor = function () {
+    if (this.armor <= 0) return false;
 
-    if (this.grid.isFlagged(x, y)) {
-        this.grid.unflagTile(x, y);
-        this.flags--;
-        this.cleared--;
-        this.moves++;
-    } else if (this.grid.flagTile(x, y)) {
-        this.flags++;
-        this.cleared++;
-        this.moves++;
+    this.armor--;
+    this.$statsArmor.innerText = this.armor + ' / 3';
+    this.showAlert('Your armor shielded you from the blast.');
+    return true;
+};
+
+// Calculates and returns the score gained from completing this mission.
+Game.prototype.calculateScore = function (markers, disarmed) {
+    return 10000;
+};
+
+// Attempt to complete the current mission.
+Game.prototype.completeMission = function () {
+    var result = this.grid.showAllTiles();
+    this.totalDisarmed += result.disarmed;
+
+    if (result.active > 0) {
+        // failure due to unmarked IEDs
+        this.state = GameState.GAMEOVER;
+        this.showGameOver(this.randomFailureMessage(result.active));
+    } else {
+        // success
+        this.state = GameState.COMPLETED;
+        var score = this.calculateScore(result.markers, result.disarmed);
+        this.totalScore += score;
+        this.showMissionResult(result.markers, score);
     }
+};
+
+// Mark or unmark the tile at (x, y) as IED.
+Game.prototype.markIED = function (x, y) {
+    var delta = this.grid.markIED(x, y);
+
+    this.flags += delta;
+    this.cleared += delta;
+    this.moves++;
+    this.totalMoves++;
     this.updateStats();
 };
 
+// Mark or unmark the tile at (x, y) as safe.
+Game.prototype.markSafe = function (x, y) {
+    var delta = this.grid.markSafe(x, y);
+
+    this.flags += delta;
+    this.cleared += delta;
+    this.moves++;
+    this.totalMoves++;
+    this.updateStats();
+};
+
+// Start the next mission (reset the game board).
+Game.prototype.nextMission = function () {
+    this.grid.reset();
+    this.level++;
+    this.armor = Math.min(3, this.armor + 1);
+    this.ieds = 0;
+    this.flags = 0;
+    this.moves = 0;
+    this.visible = 0;
+    this.cleared = 0;
+
+    this.$statsArmor.innerText = this.armor + ' / 3';
+    this.updateStats();
+    this.state = GameState.STARTED;
+};
+
+// Start a new campaign (reset all state to initial values).
+Game.prototype.newCampaign = function () {
+    this.state = GameState.STARTED;
+    this.score = 0;
+    this.totalMoves = 0;
+    this.totalDisarmed = 0;
+    this.armor = 3;
+
+    this.nextMission();
+    this.level = 0;
+};
+
+// Attempt to search the tile at (x, y).
 Game.prototype.searchTile = function (x, y) {
     if (this.grid.isFlagged(x, y) || this.grid.isVisible(x, y)) return;
-    if (this.state !== GameState.STARTED) return;
 
     // generate the board on the first move
     if (this.visible === 0) {
@@ -62,37 +132,39 @@ Game.prototype.searchTile = function (x, y) {
     this.visible += searched;
     this.cleared += searched;
     this.moves++;
+    this.totalMoves++;
     this.updateStats();
 
     // block if we have armor, otherwise game over
     if (this.grid.hasIED(x, y)) {
-        if (this.armor > 0) {
-            this.decreaseArmor();
+        if (this.applyArmor()) {
             this.grid.blockIED(x, y);
         } else {
             this.state = GameState.GAMEOVER;
-            this.showAlert('You were killed by an IED.');
+            this.showGameOver(this.randomDeathMessage());
         }
     }
 };
 
-Game.prototype.newBoard = function () {
-    this.grid.reset();
-    this.armor = Math.min(3, this.armor + 1);
-    this.ieds = 0;
-    this.flags = 0;
-    this.moves = 0;
-    this.visible = 0;
-    this.cleared = 0;
 
-    this.$armor.innerText = '3 / 3';
-    this.updateStats();
-};
+(function () {
+    Game.prototype.randomDeathMessage = function () {
+        return 'You were killed by an IED.';
+    };
 
-Game.prototype.decreaseArmor = function () {
-    this.armor--;
-    this.$armor.innerText = this.armor + ' / 3';
-    this.showAlert('Your armor shielded you from the blast.');
+    Game.prototype.randomFailureMessage = function (ieds) {
+        if (ieds === 1) {
+            return 'You were dismissed for failing to flag the IED.';
+        } else {
+            return 'The city was destroyed by the IEDs.';
+        }
+    };
+})();
+
+
+Game.prototype.hideBar = function ($bar) {
+    $bar.classList.add('hidden');
+    $bar.classList.remove('fade-in');
 };
 
 Game.prototype.showAlert = function (text) {
@@ -115,35 +187,127 @@ Game.prototype.showAlert = function (text) {
     }, 5);
 };
 
+Game.prototype.showBar = function ($bar) {
+    $bar.classList.remove('hidden');
+    $bar.classList.add('fade-in');
+};
+
+Game.prototype.showGameOver = function (reason) {
+    this.$lostText.innerText = reason;
+    this.$lostMoves.innerText = this.totalMoves;
+    this.$lostIeds.innerText = this.totalDisarmed;
+    this.$lostSaved.innerText = this.level;
+    this.$lostScore.innerText = this.totalScore;
+
+    this.showAlert(reason);
+    this.hideBar(this.$statsBar);
+    this.hideBar(this.$confirmBar);
+    this.showBar(this.$lostBar);
+};
+
+Game.prototype.showMissionResult = function (markers, score) {
+    this.$resultText.innerText = 'Good job, soldier. You saved the city.';
+    this.$resultMoves.innerText = this.moves;
+    this.$resultIeds.innerText = this.ieds;
+    this.$resultFlags.innerText = markers;
+    this.$resultScore.innerText = score;
+    this.$resultCumulative.innerText = this.totalScore;
+
+    this.showAlert('Good job, soldier. You saved the city.');
+    this.hideBar(this.$statsBar);
+    this.hideBar(this.$confirmBar);
+    this.showBar(this.$resultBar);
+};
+
 Game.prototype.updateStats = function () {
     var percentage = this.cleared / this.total * 100;
 
-    this.$moves.innerText = this.moves;
-    this.$cleared.innerText = percentage.toFixed(1) + '%';
-    this.$flags.innerText = this.flags;
+    this.$statsMoves.innerText = this.moves;
+    this.$statsCleared.innerText = percentage.toFixed(1) + '%';
+    this.$statsFlags.innerText = this.flags;
 };
+
 
 Game.prototype.setup = function () {
     var self = this;
 
-    this.inputManager.on('flag', function (data) {
-        self.flagTile(data.x, data.y);
+    this.inputManager.on('flag1', function (data) {
+        if (self.state !== GameState.STARTED) return;
+        if (self.grid.isVisible(data.x, data.y)) return;
+
+        self.markIED(data.x, data.y);
+    });
+    this.inputManager.on('flag2', function (data) {
+        if (self.state !== GameState.STARTED) return;
+        if (self.grid.isVisible(data.x, data.y)) return;
+
+        self.markSafe(data.x, data.y);
     });
     this.inputManager.on('search', function (data) {
+        if (self.state !== GameState.STARTED) return;
+
         self.searchTile(data.x, data.y);
+    });
+    this.inputManager.on('complete', function () {
+        if (self.state === GameState.STARTED && self.visible > 0) {
+            self.hideBar(self.$statsBar);
+            self.showBar(self.$confirmBar);
+        }
+    });
+    this.inputManager.on('confirm-yes', function () {
+        if (self.state !== GameState.STARTED || self.visible === 0) return;
+
+        self.completeMission();
+    });
+    this.inputManager.on('confirm-no', function () {
+        if (self.state === GameState.STARTED) {
+            self.hideBar(self.$confirmBar);
+            self.showBar(self.$statsBar);
+        }
+    });
+    this.inputManager.on('next', function () {
+        if (self.state !== GameState.COMPLETED) return;
+
+        self.nextMission();
+        self.hideBar(self.$resultBar);
+        self.showBar(self.$statsBar);
+    });
+    this.inputManager.on('restart', function () {
+        if (self.state !== GameState.GAMEOVER) return;
+
+        self.newCampaign();
+        self.hideBar(self.$lostBar);
+        self.showBar(self.$statsBar);
     });
 
     this.inputManager.attachGridListeners(this.grid.$e);
 
     this.$alertBox = document.getElementById('game-alert-box');
     this.$alertMessage = document.getElementById('game-alert-message');
+    this.$statsBar = document.getElementById('info-bar-stats');
+    this.$confirmBar = document.getElementById('info-bar-confirm');
+    this.$resultBar = document.getElementById('info-bar-result');
+    this.$lostBar = document.getElementById('info-bar-lost');
 
-    this.$armor = document.getElementById('stats-armor');
-    this.$moves = document.getElementById('stats-moves');
-    this.$cleared = document.getElementById('stats-cleared');
-    this.$flags = document.getElementById('stats-flags');
-    this.$mode = document.getElementById('stats-mode');
+    this.$statsArmor = document.getElementById('stats-armor');
+    this.$statsMoves = document.getElementById('stats-moves');
+    this.$statsCleared = document.getElementById('stats-cleared');
+    this.$statsFlags = document.getElementById('stats-flags');
+
+    this.$resultText = document.getElementById('result-text');
+    this.$resultMoves = document.getElementById('result-moves');
+    this.$resultIeds = document.getElementById('result-ieds');
+    this.$resultFlags = document.getElementById('result-flags');
+    this.$resultScore = document.getElementById('result-score');
+    this.$resultCumulative = document.getElementById('result-cumulative');
+
+    this.$lostText = document.getElementById('lost-text');
+    this.$lostMoves = document.getElementById('lost-moves');
+    this.$lostIeds = document.getElementById('lost-ieds');
+    this.$lostSaved = document.getElementById('lost-saved');
+    this.$lostScore = document.getElementById('lost-score');
 };
+
 
 window.requestAnimationFrame(function () {
     new Game({ rows: 30, cols: 30 });

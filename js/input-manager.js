@@ -1,7 +1,12 @@
 
+/**
+ * An enum representing the current input mode. The input mode
+ * determines the action performed when a left click is detected.
+ */
 var InputMode = Object.freeze({
     SEARCH: 'search',
-    FLAG: 'flag'
+    FLAG1: 'flag1',
+    FLAG2: 'flag2'
 });
 
 /**
@@ -33,11 +38,14 @@ InputManager.prototype.emit = function (evt, data) {
 
 InputManager.prototype.switchInputMode = function () {
     if (this.mode === InputMode.SEARCH) {
-        this.mode = InputMode.FLAG;
-        this.$mode.innerText = 'Flag';
-    } else if (this.mode === InputMode.FLAG) {
+        this.mode = InputMode.FLAG1;
+        this.$statsMode.innerText = 'Mark IED';
+    } else if (this.mode === InputMode.FLAG1) {
+        this.mode = InputMode.FLAG2;
+        this.$statsMode.innerText = 'Mark Safe';
+    } else if (this.mode === InputMode.FLAG2) {
         this.mode = InputMode.SEARCH;
-        this.$mode.innerText = 'Search';
+        this.$statsMode.innerText = 'Search';
     }
 };
 
@@ -59,24 +67,27 @@ InputManager.prototype.attachGridListeners = function ($grid) {
                 case InputMode.SEARCH:
                     self.emit('search', data);
                     break;
-                case InputMode.FLAG:
-                    self.emit('flag', data);
+                case InputMode.FLAG1:
+                    self.emit('flag1', data);
+                    break;
+                case InputMode.FLAG2:
+                    self.emit('flag2', data);
                     break;
             }
         }
     };
 
-    // left click: search or flag depending on current mode
+    // left click: action depends on current mode
     $grid.addEventListener('click', clickHandler);
     $grid.addEventListener('touchend', clickHandler);
 
-    // right click: always flag
+    // right click: always mark IED
     $grid.addEventListener('contextmenu', function (evt) {
         var $e = evt.target;
         if ($e.classList.contains('grid-tile')) {
             evt.preventDefault();
             var data = { x: parseInt($e.dataset.x), y: parseInt($e.dataset.y) };
-            self.emit('flag', data);
+            self.emit('flag1', data);
         }
     });
 };
@@ -84,7 +95,7 @@ InputManager.prototype.attachGridListeners = function ($grid) {
 InputManager.prototype.attachListeners = function () {
     var self = this;
 
-    this.$mode = document.getElementById('stats-mode');
+    this.$statsMode = document.getElementById('stats-mode');
 
     this.bindButtonPress('stats-mode', function (evt) {
         evt.preventDefault();
@@ -93,5 +104,21 @@ InputManager.prototype.attachListeners = function () {
     this.bindButtonPress('stats-complete', function (evt) {
         evt.preventDefault();
         self.emit('complete');
+    });
+    this.bindButtonPress('confirm-yes', function (evt) {
+        evt.preventDefault();
+        self.emit('confirm-yes');
+    });
+    this.bindButtonPress('confirm-no', function (evt) {
+        evt.preventDefault();
+        self.emit('confirm-no');
+    });
+    this.bindButtonPress('result-next', function (evt) {
+        evt.preventDefault();
+        self.emit('next');
+    });
+    this.bindButtonPress('lost-restart', function (evt) {
+        evt.preventDefault();
+        self.emit('restart');
     });
 };

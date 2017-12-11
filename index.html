@@ -13,28 +13,85 @@
         <div id="game-alert-box" class="alert-box hidden">
             <div id="game-alert-message" class="alert-message">Alert</div>
         </div>
-        <div id="grid-container">
-        </div>
-        <div id="info-bar">
-            <div id="game-stats">
-                <table>
-                    <tr class="stats-header">
-                        <td width="60">armor</td>
-                        <td width="60">moves</td>
-                        <td width="70">cleared</td>
-                        <td width="60">flags</td>
-                        <td width="70">mode</td>
-                        <td width="90"></td>
-                    </tr>
-                    <tr class="stats-data">
-                        <td id="stats-armor">3 / 3</td>
-                        <td id="stats-moves">0</td>
-                        <td id="stats-cleared">0.0%</td>
-                        <td id="stats-flags">0</td>
-                        <td><a href="#" class="button" id="stats-mode">Search</a></td>
-                        <td><a href="#" class="button" id="stats-complete">Complete</a></td>
-                    </tr>
-                </table>
+        <div id="grid-container"></div>
+        <div id="info-bar-container">
+            <div id="info-bars">
+                <div id="info-bar-stats" class="info-bar">
+                    <table>
+                        <tr class="info-bar-header">
+                            <td width="60">armor</td>
+                            <td width="60">moves</td>
+                            <td width="70">cleared</td>
+                            <td width="60">flags</td>
+                            <td width="90">mode</td>
+                            <td width="90"></td>
+                        </tr>
+                        <tr class="info-bar-data">
+                            <td id="stats-armor">3 / 3</td>
+                            <td id="stats-moves">0</td>
+                            <td id="stats-cleared">0.0%</td>
+                            <td id="stats-flags">0</td>
+                            <td><a href="#" class="button" id="stats-mode">Search</a></td>
+                            <td><a href="#" class="button" id="stats-complete">Complete</a></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="info-bar-confirm" class="info-bar hidden">
+                    <table>
+                        <tr class="info-bar-byline">
+                            <td colspan="3">Check to ensure that all IEDs are flagged.</td>
+                        </tr>
+                        <tr class="info-bar-data">
+                            <td class="confirm-qns">Do you wish to continue?</td>
+                            <td width="62"><a href="#" class="button" id="confirm-yes">Yes</a></td>
+                            <td width="62"><a href="#" class="button" id="confirm-no">No</a></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="info-bar-result" class="info-bar hidden">
+                    <table>
+                        <tr class="info-bar-byline">
+                            <td colspan="6" id="result-text">Result.</td>
+                        </tr>
+                        <tr class="info-bar-header">
+                            <td width="60">moves</td>
+                            <td width="60">ieds</td>
+                            <td width="60">markers</td>
+                            <td width="70">score</td>
+                            <td width="90">cumulative</td>
+                            <td width="110"></td>
+                        </tr>
+                        <tr class="info-bar-data">
+                            <td id="result-moves">0</td>
+                            <td id="result-ieds">0</td>
+                            <td id="result-flags">0</td>
+                            <td id="result-score">0</td>
+                            <td id="result-cumulative">0</td>
+                            <td><a href="#" class="button" id="result-next">Next Mission</a></td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="info-bar-lost" class="info-bar hidden">
+                    <table>
+                        <tr class="info-bar-byline">
+                            <td colspan="5" id="lost-text">Lost.</td>
+                        </tr>
+                        <tr class="info-bar-header">
+                            <td width="60">moves</td>
+                            <td width="65">disarmed</td>
+                            <td width="82">cities saved</td>
+                            <td width="90">final score</td>
+                            <td width="92"></td>
+                        </tr>
+                        <tr class="info-bar-data">
+                            <td id="lost-moves">0</td>
+                            <td id="lost-ieds">0</td>
+                            <td id="lost-saved">0</td>
+                            <td id="lost-score">0</td>
+                            <td><a href="#" class="button" id="lost-restart">Try Again</a></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

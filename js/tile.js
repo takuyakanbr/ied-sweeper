@@ -6,7 +6,7 @@
 var TileType = Object.freeze({
     EMPTY: 'empty',
     IED: 'ied',
-    DEFUSED: 'defused',
+    DISARMED: 'disarmed',
     BLOCKED: 'blocked'
 });
 
@@ -16,7 +16,8 @@ var TileType = Object.freeze({
 var TileState = Object.freeze({
     HIDDEN: 'hidden',
     VISIBLE: 'visible',
-    FLAGGED: 'flagged'
+    FLAG1: 'flag1',
+    FLAG2: 'flag2'
 });
 
 /**
@@ -86,15 +87,18 @@ Tile.prototype._updateElement = function () {
             className += ' grid-tile-visible';
             if (this.type === TileType.IED)
                 className += ' grid-tile-ied';
-            else if (this.type === TileType.DEFUSED)
-                className += ' grid-tile-defused';
+            else if (this.type === TileType.DISARMED)
+                className += ' grid-tile-disarmed';
             else if (this.type === TileType.BLOCKED)
                 className += ' grid-tile-blocked';
             else if (this.danger > 0)
                 className += ' grid-tile-danger grid-tile-danger' + this.danger;
             break;
-        case TileState.FLAGGED:
-            className += ' grid-tile-flagged';
+        case TileState.FLAG1:
+            className += ' grid-tile-flag1';
+            break;
+        case TileState.FLAG2:
+            className += ' grid-tile-flag2';
             break;
     }
 
