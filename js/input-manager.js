@@ -77,9 +77,33 @@ InputManager.prototype.attachGridListeners = function ($grid) {
         }
     };
 
+    // detect and handle touch presses: action depends on current mode
+    var touchStartX, touchStartY;
+    var isPress = false;
+
+    $grid.addEventListener('touchstart', function (evt) {
+        if (evt.touches.length > 1 || evt.targetTouches.length > 1) {
+            isPress = false;
+            return;
+        }
+
+        touchStartX = evt.touches[0].clientX;
+        touchStartY = evt.touches[0].clientY;
+        isPress = true;
+    });
+    $grid.addEventListener('touchmove', function (evt) {
+        isPress = false;
+    });
+    $grid.addEventListener('touchend', function (evt) {
+        if (evt.touches.length > 0 || evt.targetTouches.length > 0) return;
+
+        if (isPress) {
+            clickHandler(evt);
+        }
+    });
+
     // left click: action depends on current mode
     $grid.addEventListener('click', clickHandler);
-    $grid.addEventListener('touchend', clickHandler);
 
     // right click: always mark IED
     $grid.addEventListener('contextmenu', function (evt) {
@@ -97,28 +121,49 @@ InputManager.prototype.attachListeners = function () {
 
     this.$statsMode = document.getElementById('stats-mode');
 
-    this.bindButtonPress('stats-mode', function (evt) {
-        evt.preventDefault();
+    // handle keyboard shortcuts for changing input modes
+    document.addEventListener('keydown', function (e) {
+        var modifiers = e.altKey || e.ctrlKey || e.metaKey || e.shiftKey;
+
+        if (!modifiers) {
+            if (e.which == 49 || e.which == 97) { // 1 / Numpad1
+                e.preventDefault();
+                self.mode = InputMode.SEARCH;
+                self.$statsMode.innerText = 'Search';
+            } else if (e.which == 50 || e.which == 98) { // 2 / Numpad2
+                e.preventDefault();
+                self.mode = InputMode.FLAG1;
+                self.$statsMode.innerText = 'Mark IED';
+            } else if (e.which == 51 || e.which == 99) { // 3 / Numpad3
+                e.preventDefault();
+                self.mode = InputMode.FLAG2;
+                self.$statsMode.innerText = 'Mark Safe';
+            }
+        }
+    });
+
+    this.bindButtonPress('stats-mode', function (e) {
+        e.preventDefault();
         self.switchInputMode();
     });
-    this.bindButtonPress('stats-complete', function (evt) {
-        evt.preventDefault();
+    this.bindButtonPress('stats-complete', function (e) {
+        e.preventDefault();
         self.emit('complete');
     });
-    this.bindButtonPress('confirm-yes', function (evt) {
-        evt.preventDefault();
+    this.bindButtonPress('confirm-yes', function (e) {
+        e.preventDefault();
         self.emit('confirm-yes');
     });
-    this.bindButtonPress('confirm-no', function (evt) {
-        evt.preventDefault();
+    this.bindButtonPress('confirm-no', function (e) {
+        e.preventDefault();
         self.emit('confirm-no');
     });
-    this.bindButtonPress('result-next', function (evt) {
-        evt.preventDefault();
+    this.bindButtonPress('result-next', function (e) {
+        e.preventDefault();
         self.emit('next');
     });
-    this.bindButtonPress('lost-restart', function (evt) {
-        evt.preventDefault();
+    this.bindButtonPress('lost-restart', function (e) {
+        e.preventDefault();
         self.emit('restart');
     });
 };
