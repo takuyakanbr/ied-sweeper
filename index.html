@@ -12,7 +12,7 @@
     <title>IED Sweeper</title>
     <link href="style/main.css" rel="stylesheet" type="text/css">
 </head>
-<body>
+<body class="no-overflow">
     <div id="game-container">
 
         <div id="game-alert-box" class="alert-box hidden">
@@ -35,6 +35,21 @@
                             <td id="header-highscore">0</td>
                         </tr>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="intro-overlay">
+            <div id="intro-container">
+                <div id="intro-message">
+                    <p>Good, you're here. Let us begin.</p>
+                    <p>The terrorist group has placed an <span class="intro-emphasis">unknown</span> number of IEDs in the nearby city.</p>
+                    <p>Your job, soldier, is to determine their positions and <span class="intro-emphasis">mark</span> them, so that the EMP team knows where to target their weapons.</p>
+                    <p>Needless to say, we wish to conserve our EMP resources, so try to <span class="intro-emphasis">minimize</span> the number of markings.</p>
+                    <p>Lastly, to avoid triggering an IED, search <span class="intro-emphasis">no more than 7</span> of its adjacent tiles.</p>
+                    <p>All the best and good luck.</p>
+                    <p><i>[You can press 1 / 2 / 3 to change the left-click action. Right-clicking always marks or unmarks a tile as IED.]</i></p>
+                    <a href="#" class="button" id="intro-continue">Start Mission</a>
                 </div>
             </div>
         </div>

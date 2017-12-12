@@ -142,6 +142,11 @@ InputManager.prototype.attachListeners = function () {
         }
     });
 
+    this.bindButtonPress('intro-continue', function (e) {
+        e.preventDefault();
+        document.getElementById('intro-overlay').classList.add('hidden');
+        document.body.classList.remove('no-overflow');
+    });
     this.bindButtonPress('stats-mode', function (e) {
         e.preventDefault();
         self.switchInputMode();

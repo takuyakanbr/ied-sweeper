@@ -53,7 +53,7 @@ Tile.prototype.flash = function () {
         self.$e.classList.add('grid-tile-flash');
         self._flashTimeout = setTimeout(function () {
             self.$e.classList.remove('grid-tile-flash');
-        }, 600);
+        }, 500);
     }, 5);
 };
 

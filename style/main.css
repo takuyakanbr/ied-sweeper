@@ -16,6 +16,12 @@ table {
     border-collapse: collapse;
     text-align: center;
 }
+::selection {
+    background-color: #81D4FA;
+}
+::-moz-selection {
+    background-color: #81D4FA;
+}
 .button {
     font-size: 12px;
     color: #f1f4f9;
@@ -32,6 +38,9 @@ table {
 .button:hover, .button:focus {
     color: #fafcff;
     background-color: #a1a4a9;
+}
+.no-overflow {
+    overflow: hidden;
 }
 .alert-box {
     position: fixed;
@@ -133,6 +142,37 @@ table {
     padding: 5px;
     border-radius: 5px;
     background-color: #e1e4e9;
+}
+
+#intro-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 100%;
+    padding: 8vh 10px 10px;
+    background-color: rgba(241, 244, 249, 0.66);
+    z-index: 11;
+}
+#intro-container {
+    display: flex;
+    justify-content: center;
+}
+#intro-message {
+    padding: 0 10px;
+    max-width: 450px;
+    max-height: 60vh;
+    overflow-y: auto;
+    border: 1px solid #546E7A;
+    border-radius: 5px;
+    background-color: rgba(241, 244, 249, 0.80);
+}
+.intro-emphasis {
+    font-weight: bold;
+}
+#intro-continue {
+    float: right;
+    margin-right: 6px;
+    margin-bottom: 15px;
 }
 
 #grid-container {
@@ -240,7 +280,7 @@ table {
     z-index: 9;
     justify-content: center;
     background-color: rgba(241, 244, 249, 0.60);
-    padding: 8px 10px;
+    padding: 7px 10px;
 }
 .info-bar {
     border: 1px solid #546E7A;
