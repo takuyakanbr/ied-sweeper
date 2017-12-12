@@ -48,7 +48,12 @@ Game.prototype.applyArmor = function () {
 
 // Calculates and returns the score gained from completing this mission.
 Game.prototype.calculateScore = function (markers, disarmed) {
-    return 10000;
+    var excessMarkers = markers - disarmed;
+    var markerPenalty = Math.max(0, excessMarkers - 2) * 15;
+    var idealMoves = this.ieds + this.total * 0.3;
+    var movesPenalty = Math.max(0, this.moves - idealMoves);
+    var score = 1000 + disarmed * 20 - markerPenalty - movesPenalty;
+    return Math.max(50, score);
 };
 
 // Attempt to complete the current mission.
@@ -159,6 +164,10 @@ Game.prototype.searchTile = function (x, y) {
             return 'The city was destroyed by the IEDs.';
         }
     };
+
+    Game.prototype.randomSuccessMessage = function () {
+        return 'Good job, soldier. You saved the city.';
+    };
 })();
 
 
@@ -206,14 +215,15 @@ Game.prototype.showGameOver = function (reason) {
 };
 
 Game.prototype.showMissionResult = function (markers, score) {
-    this.$resultText.innerText = 'Good job, soldier. You saved the city.';
+    var text = this.randomSuccessMessage();
+    this.$resultText.innerText = text;
     this.$resultMoves.innerText = this.moves;
     this.$resultIeds.innerText = this.ieds;
     this.$resultFlags.innerText = markers;
     this.$resultScore.innerText = score;
     this.$resultCumulative.innerText = this.totalScore;
 
-    this.showAlert('Good job, soldier. You saved the city.');
+    this.showAlert(text);
     this.hideBar(this.$statsBar);
     this.hideBar(this.$confirmBar);
     this.showBar(this.$resultBar);
@@ -249,10 +259,14 @@ Game.prototype.setup = function () {
         self.searchTile(data.x, data.y);
     });
     this.inputManager.on('complete', function () {
-        if (self.state === GameState.STARTED && self.visible > 0) {
-            self.hideBar(self.$statsBar);
-            self.showBar(self.$confirmBar);
+        if (self.state !== GameState.STARTED) return;
+        if (self.visible === 0) {
+            self.showAlert('You have not even started!');
+            return;
         }
+
+        self.hideBar(self.$statsBar);
+        self.showBar(self.$confirmBar);
     });
     this.inputManager.on('confirm-yes', function () {
         if (self.state !== GameState.STARTED || self.visible === 0) return;

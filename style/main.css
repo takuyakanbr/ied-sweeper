@@ -69,22 +69,69 @@ table {
     100% { opacity: 0; }
 }
 .fade-in {
-    -webkit-animation: fadeIn 0.5s ease-in;
-    animation: fadeIn 0.5s ease-in;
+    -webkit-animation: fadeIn 0.4s ease-in;
+    animation: fadeIn 0.4s ease-in;
 }
 .blink-once {
     -webkit-animation: blink 2s;
     animation: blink 2s;
 }
 
-
-#grid-container {
+#game-container {
+    padding-top: 70px;
+}
+#header-container {
     display: flex;
     justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+}
+#game-header {
+    position: relative;
+    max-width: 710px;
+    padding-top: 11px;
+    flex: 1 0;
+}
+.game-title {
+    display: inline-block;
+    font-size: 1.5em;
+    padding: 17px 20px 13px 12px;
+}
+.game-title span {
+    -webkit-transition: color 0.25s;
+    transition: color 0.25s;
+}
+.game-title:hover #game-title-1, .game-title:focus #game-title-1 {
+    color: #1565C0;
+}
+.game-title:hover #game-title-2, .game-title:focus #game-title-2 {
+    color: #558B2F;
+}
+.game-title:hover #game-title-3, .game-title:focus #game-title-3 {
+    color: #E64A19;
+}
+.game-title:hover #game-title-4, .game-title:focus #game-title-4 {
+    color: #7B1FA2;
+}
+#scoreboard-container {
+    float: right;
+    margin: 4px 10px 0 0;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #e1e4e9;
+}
+
+#grid-container {
+    display: inline-block;
+    margin-bottom: 90px;
+    position: relative;
+    z-index: 5;
 }
 .grid {
-    flex: 0 0;
-    margin: 15px;
+    margin: 10px;
 }
 .grid table, .grid th, .grid td {
     border: 1px solid #546E7A;
@@ -171,19 +218,26 @@ table {
 
 #info-bar-container {
     display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9;
     justify-content: center;
-    margin: 5px 15px 15px;
+    background-color: rgba(241, 244, 249, 0.60);
+    padding: 10px 10px;
 }
 .info-bar {
     border: 1px solid #546E7A;
     padding: 5px;
     border-radius: 5px;
+    background-color: #f1f4f9;
 }
 .info-bar-byline td {
     padding: 5px;
 }
 .info-bar-header {
-    font-size: 0.9em;
+    font-size: 0.95em;
     font-variant: small-caps;
     color: #546E7A;
 }
@@ -202,4 +256,36 @@ table {
 
 .hidden {
     display: none;
+}
+
+@media (min-width: 720px) {
+    #grid-container {
+        display: flex;
+        justify-content: center;
+    }
+    .grid {
+        flex: 0 0;
+    }
+}
+
+@media (min-width: 720px) and (min-height: 855px) {
+    #grid-container {
+        margin-bottom: 0;
+    }
+    #info-bar-container {
+        position: relative;
+        padding: 5px 15px 15px;
+    }
+}
+
+@media (max-width: 380px) {
+    .game-title {
+        padding-right: 10px;
+    }
+    #scoreboard-container {
+        padding: 5px 0;
+    }
+    .scoreboard {
+        max-width: 170px;
+    }
 }

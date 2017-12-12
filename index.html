@@ -3,17 +3,40 @@
 <head>
     <meta charset="utf-8" />
     <meta name="author" content="Daniel Teo" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="favicon.png" rel="icon" type="image/x-icon">
     <title>IED Sweeper</title>
     <link href="style/main.css" rel="stylesheet" type="text/css">
 </head>
 <body>
     <div id="game-container">
+
         <div id="game-alert-box" class="alert-box hidden">
             <div id="game-alert-message" class="alert-message">Alert</div>
         </div>
+
+        <div id="header-container">
+            <div id="game-header">
+                <div class="game-title"><b><span id="game-title-1">I</span><span id="game-title-2">E</span><span id="game-title-3">D</span></b> <span id="game-title-4">Sweeper</span></div>
+                <div id="scoreboard-container">
+                    <table class="scoreboard">
+                        <tr class="info-bar-header">
+                            <td width="45">level</td>
+                            <td width="65">score</td>
+                            <td width="75">high score</td>
+                        </tr>
+                        <tr class="info-bar-data">
+                            <td id="header-level">0</td>
+                            <td id="header-score">0</td>
+                            <td id="header-highscore">0</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div id="grid-container"></div>
+
         <div id="info-bar-container">
             <div id="info-bars">
                 <div id="info-bar-stats" class="info-bar">
@@ -41,7 +64,7 @@
                         <tr class="info-bar-byline">
                             <td colspan="3">Check to ensure that all IEDs are flagged.</td>
                         </tr>
-                        <tr class="info-bar-data">
+                        <tr>
                             <td class="confirm-qns">Do you wish to continue?</td>
                             <td width="62"><a href="#" class="button" id="confirm-yes">Yes</a></td>
                             <td width="62"><a href="#" class="button" id="confirm-no">No</a></td>
@@ -94,6 +117,7 @@
                 </div>
             </div>
         </div>
+
     </div>
     <script src="js/util.js"></script>
     <script src="js/tile.js"></script>
