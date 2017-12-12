@@ -24,18 +24,61 @@ Grid.prototype.hasIED = function (x, y) {
 };
 
 Grid.prototype.isFlagged = function (x, y) {
-    var state = this.getTile(x, y).getState();
-    return state === TileState.FLAG1 || state === TileState.FLAG2;
+    return this.getTile(x, y).isFlagged();
 };
 
 Grid.prototype.isVisible = function (x, y) {
-    return this.getTile(x, y).getState() === TileState.VISIBLE;
+    return this.getTile(x, y).isVisible();
 };
 
 Grid.prototype.blockIED = function (x, y) {
     var tile = this.getTile(x, y);
     if (tile.getType() === TileType.IED)
         tile.setType(TileType.BLOCKED);
+};
+
+// Returns a list of tiles adjacent to (x, y) that are of type IED
+// and have 8 adjacent visible tiles.
+Grid.prototype.checkAdjacentIEDs = function (x, y) {
+    var list = [];
+
+    this.surrounding(x, y, function (tile) {
+        if (tile.getType() !== TileType.IED || tile.getState() === TileState.VISIBLE) return;
+
+        var count = 0;
+        this.surrounding(tile.x, tile.y, function (tile2) {
+            if (tile2.getState() === TileState.VISIBLE) count++;
+        });
+
+        if (count === 8) {
+            list.push(tile);
+        }
+    });
+
+    return list;
+};
+
+// Returns true if the tile at (x, y) can be searched.
+// The tile cannot be searched if it has an adjacent flagged
+// tile which is adjacent to 7 visible tiles.
+Grid.prototype.checkSearchRestrictions = function (x, y) {
+    var result = true;
+
+    this.surrounding(x, y, function (tile) {
+        if (tile.getState() !== TileState.FLAG1) return;
+
+        var count = 0;
+        this.surrounding(tile.x, tile.y, function (tile2) {
+            if (tile2.getState() === TileState.VISIBLE) count++;
+        });
+
+        if (count === 7) {
+            result = false;
+            tile.flash();
+        }
+    });
+
+    return result;
 };
 
 // Mark or unmark the tile at (x, y) as IED.
@@ -73,6 +116,8 @@ Grid.prototype.markSafe = function (x, y) {
 // Search the tile at (x, y). If this is a safe tile, its neighbors will
 // automatically be searched. Returns the number of tiles set to visible.
 Grid.prototype.searchTile = function (x, y) {
+    if (!this.checkSearchRestrictions(x, y)) return 0;
+
     var count = 1;
     var startTile = this.getTile(x, y);
     startTile.setState(TileState.VISIBLE);
@@ -129,6 +174,34 @@ Grid.prototype.showAllTiles = function () {
     return { markers: markers, disarmed: disarmed, active: active };
 };
 
+// Set all tiles in the given list to visible.
+// Returns the number of tiles set to visible.
+Grid.prototype.showTiles = function (tiles) {
+    var count = 0;
+    for (var i = 0; i < tiles.length; i++) {
+        var tile = tiles[i];
+        if (!tile.isVisible()) {
+            tile.setState(TileState.VISIBLE);
+            count++;
+        }
+    }
+    return count;
+};
+
+// Unflag all tiles in the given list.
+// Returns the number of tiles unflagged.
+Grid.prototype.unflagTiles = function (tiles) {
+    var count = 0;
+    for (var i = 0; i < tiles.length; i++) {
+        var tile = tiles[i];
+        if (tile.isFlagged()) {
+            tile.setState(TileState.HIDDEN);
+            count++;
+        }
+    }
+    return count;
+};
+
 // Adds a random number of IEDs to the grid, avoiding the tile at (x, y).
 // Difficulty affects the number of IEDs, and should be between 0 and 10.
 Grid.prototype.randomize = function (x, y, difficulty) {
@@ -170,7 +243,7 @@ Grid.prototype.surrounding = function (x, y, fn) {
             if (rx < 0 || ry < 0) continue;
             if (rx >= this.cols || ry >= this.rows) continue;
 
-            fn(this.getTile(rx, ry));
+            fn.call(this, this.getTile(rx, ry));
         }
     }
 };

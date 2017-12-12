@@ -137,20 +137,47 @@ Game.prototype.searchTile = function (x, y) {
     }
 
     var searched = this.grid.searchTile(x, y);
+    if (searched === 0) return;
+
     this.visible += searched;
     this.cleared += searched;
     this.moves++;
     this.totalMoves++;
     this.updateStats();
 
-    // block if we have armor, otherwise game over
-    if (this.grid.hasIED(x, y)) {
-        if (this.applyArmor()) {
-            this.grid.blockIED(x, y);
-        } else {
-            this.state = GameState.GAMEOVER;
-            this.showGameOver(this.randomDeathMessage());
-        }
+    // trigger IED at this tile
+    if (this.grid.hasIED(x, y) && !this.triggerIED(x, y))
+        return;
+
+    // trigger adjacent IEDs with 8 adjacent visible tiles
+    var list = this.grid.checkAdjacentIEDs(x, y);
+
+    var unflagged = this.grid.unflagTiles(list);
+    this.flags -= unflagged;
+    this.cleared -= unflagged;
+    var shown = this.grid.showTiles(list);
+    this.cleared += shown;
+    this.updateStats();
+
+    for (var i = 0; i < list.length; i++) {
+        var tile = list[i];
+
+        if (!this.triggerIED(tile.x, tile.y))
+            return;
+    }
+};
+
+// Triggers the IED at (x, y). If we have armor, the blast
+// will be blocked. Otherwise, end the game.
+// Returns true if the IED is blocked.
+Game.prototype.triggerIED = function (x, y) {
+    if (this.applyArmor()) {
+        this.grid.blockIED(x, y);
+        return true;
+    } else {
+        this.state = GameState.GAMEOVER;
+        this.showGameOver(this.randomDeathMessage());
+        return false;
     }
 };
 

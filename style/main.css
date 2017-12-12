@@ -57,6 +57,16 @@ table {
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
+@-webkit-keyframes bgFlash {
+    0% { background-color: #dadcdf; }
+    40% { background-color: #7a7c7f; }
+    100% { background-color: #dadcdf; }
+}
+@keyframes bgFlash {
+    0% { background-color: #dadcdf; }
+    40% { background-color: #7a7c7f; }
+    100% { background-color: #dadcdf; }
+}
 @-webkit-keyframes blink {
     0% { opacity: 0; }
     25% { opacity: 1; }
@@ -172,6 +182,10 @@ table {
 }
 .grid-tile-blocked {
     background-color: #FFCA28;
+}
+.grid-tile-flash {
+    -webkit-animation: bgFlash 0.5s;
+    animation: bgFlash 0.5s;
 }
 
 .grid-tile-flag1::before {

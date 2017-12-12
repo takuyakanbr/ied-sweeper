@@ -41,6 +41,22 @@ function Tile($container, x, y) {
     $container.appendChild(this.$e);
 }
 
+Tile.prototype.flash = function () {
+    var self = this;
+
+    if (this._flashTimeout) {
+        clearTimeout(this._flashTimeout);
+        this.$e.classList.remove('grid-tile-flash');
+    }
+
+    setTimeout(function () {
+        self.$e.classList.add('grid-tile-flash');
+        self._flashTimeout = setTimeout(function () {
+            self.$e.classList.remove('grid-tile-flash');
+        }, 600);
+    }, 5);
+};
+
 Tile.prototype.getState = function () {
     return this.state;
 };
@@ -53,9 +69,17 @@ Tile.prototype.incrementDanger = function () {
     this.danger++;
 };
 
+Tile.prototype.isFlagged = function () {
+    return this.state === TileState.FLAG1 || this.state === TileState.FLAG2;
+};
+
 // Returns true if this tile is empty and has a danger level of 0.
 Tile.prototype.isSafe = function () {
     return this.type === TileType.EMPTY && this.danger === 0;
+};
+
+Tile.prototype.isVisible = function () {
+    return this.state === TileState.VISIBLE;
 };
 
 Tile.prototype.setState = function (state) {
