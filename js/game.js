@@ -13,6 +13,7 @@ var GameState = Object.freeze({
 function Game(opts) {
     // - static variables -
     this.inputManager = new InputManager();
+    this.storageManager = new StorageManager();
     this.rows = opts.rows;
     this.cols = opts.cols;
     this.total = this.rows * this.cols;
@@ -21,6 +22,7 @@ function Game(opts) {
     // - state variables -
     this.state = GameState.STARTED;
     this.level = 0;
+    this.highScore = this.storageManager.getHighScore();
     this.totalScore = 0;
     this.totalMoves = 0;
     this.totalDisarmed = 0;
@@ -70,7 +72,7 @@ Game.prototype.completeMission = function () {
         this.state = GameState.COMPLETED;
         var score = this.calculateScore(result.markers, result.disarmed);
         this.totalScore += score;
-        this.showMissionResult(result.markers, score);
+        this.showMissionResult(result.markers, result.disarmed, score);
     }
 };
 
@@ -109,19 +111,20 @@ Game.prototype.nextMission = function () {
 
     this.$statsArmor.innerText = this.armor + ' / 3';
     this.updateStats();
+    this.updateHeader();
     this.state = GameState.STARTED;
 };
 
 // Start a new campaign (reset all state to initial values).
 Game.prototype.newCampaign = function () {
     this.state = GameState.STARTED;
+    this.level = -1;
     this.score = 0;
     this.totalMoves = 0;
     this.totalDisarmed = 0;
     this.armor = 3;
 
     this.nextMission();
-    this.level = 0;
 };
 
 // Attempt to search the tile at (x, y).
@@ -153,20 +156,52 @@ Game.prototype.searchTile = function (x, y) {
 
 
 (function () {
+    var DEATH_MESSAGES = ['You were killed by an IED.',
+        'An IED blew you to smithereens.',
+        'You lost your life protecting the city.',
+        'Your mistake cost you your life.',
+        'You should have been more careful.',
+        'You were blown to pieces by the IED.'];
+    var MINOR_FAILURE_MESSAGES = ['I\'m sorry, but you are dismissed.',
+        'You should have been more careful, soldier.',
+        'Your mistake cost the lives of many civilians.'];
+    var MAJOR_FAILURE_MESSAGES = ['The city was devastated by the IEDs.',
+        'That was extremely disappointing. Get out.',
+        'Which side are you on? Get out.'];
+    var IMPRESSIVE_MESSAGES = ['Excellent work, soldier. I am impressed.',
+        'That was an impressive display of your skills, soldier.',
+        'We are very impressed with your work, soldier.'];
+    var SUCCESS_MESSAGES = ['Good job, soldier. You saved the city.',
+        'Your heroic actions saved the city.',
+        'You have the gratitude of the city\'s residents.',
+        'Keep up the good work, soldier.'];
+
+    function getRandomItem(arr) {
+        return arr[getRandomInt(0, arr.length)];
+    }
+
     Game.prototype.randomDeathMessage = function () {
-        return 'You were killed by an IED.';
+        return getRandomItem(DEATH_MESSAGES);
     };
 
     Game.prototype.randomFailureMessage = function (ieds) {
-        if (ieds === 1) {
-            return 'You were dismissed for failing to flag the IED.';
+        if (getRandomInt(0, 4) === 0) {
+            var deaths = ieds * getRandomInt(470, 526);
+            return 'The IED' + (ieds === 1 ? '' : 's') + ' resulted in a death toll of ' + deaths + '.';
+        }
+        if (ieds <= 2) {
+            return getRandomItem(MINOR_FAILURE_MESSAGES);
         } else {
-            return 'The city was destroyed by the IEDs.';
+            return getRandomItem(MAJOR_FAILURE_MESSAGES);
         }
     };
 
-    Game.prototype.randomSuccessMessage = function () {
-        return 'Good job, soldier. You saved the city.';
+    Game.prototype.randomSuccessMessage = function (markers, disarmed) {
+        if (markers <= disarmed) {
+            return getRandomItem(IMPRESSIVE_MESSAGES);
+        } else {
+            return getRandomItem(SUCCESS_MESSAGES);
+        }
     };
 })();
 
@@ -214,8 +249,8 @@ Game.prototype.showGameOver = function (reason) {
     this.showBar(this.$lostBar);
 };
 
-Game.prototype.showMissionResult = function (markers, score) {
-    var text = this.randomSuccessMessage();
+Game.prototype.showMissionResult = function (markers, disarmed, score) {
+    var text = this.randomSuccessMessage(markers, disarmed);
     this.$resultText.innerText = text;
     this.$resultMoves.innerText = this.moves;
     this.$resultIeds.innerText = this.ieds;
@@ -224,9 +259,20 @@ Game.prototype.showMissionResult = function (markers, score) {
     this.$resultCumulative.innerText = this.totalScore;
 
     this.showAlert(text);
+    this.updateHeader();
     this.hideBar(this.$statsBar);
     this.hideBar(this.$confirmBar);
     this.showBar(this.$resultBar);
+};
+
+Game.prototype.updateHeader = function () {
+    if (this.totalScore > this.highScore) {
+        this.highScore = this.totalScore;
+        this.storageManager.setHighScore(this.highScore);
+    }
+    this.$headerLevel.innerText = (this.level + 1);
+    this.$headerScore.innerText = this.totalScore;
+    this.$headerHighScore.innerText = this.highScore;
 };
 
 Game.prototype.updateStats = function () {
@@ -302,6 +348,10 @@ Game.prototype.setup = function () {
     this.$confirmBar = document.getElementById('info-bar-confirm');
     this.$resultBar = document.getElementById('info-bar-result');
     this.$lostBar = document.getElementById('info-bar-lost');
+
+    this.$headerLevel = document.getElementById('header-level');
+    this.$headerScore = document.getElementById('header-score');
+    this.$headerHighScore = document.getElementById('header-highscore');
 
     this.$statsArmor = document.getElementById('stats-armor');
     this.$statsMoves = document.getElementById('stats-moves');
