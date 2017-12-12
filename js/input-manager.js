@@ -45,7 +45,7 @@ InputManager.prototype.switchInputMode = function () {
         this.$statsMode.innerText = 'Safe';
     } else if (this.mode === InputMode.FLAG2) {
         this.mode = InputMode.SEARCH;
-        this.$statsMode.innerText = 'Open';
+        this.$statsMode.innerText = 'Search';
     }
 };
 
@@ -129,7 +129,7 @@ InputManager.prototype.attachListeners = function () {
             if (e.which == 49 || e.which == 97) { // 1 / Numpad1
                 e.preventDefault();
                 self.mode = InputMode.SEARCH;
-                self.$statsMode.innerText = 'Open';
+                self.$statsMode.innerText = 'Search';
             } else if (e.which == 50 || e.which == 98) { // 2 / Numpad2
                 e.preventDefault();
                 self.mode = InputMode.FLAG1;

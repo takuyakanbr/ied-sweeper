@@ -51,11 +51,11 @@ Game.prototype.applyArmor = function () {
 // Calculates and returns the score gained from completing this mission.
 Game.prototype.calculateScore = function (markers, disarmed) {
     var excessMarkers = markers - disarmed;
-    var markerPenalty = Math.max(0, excessMarkers - 2) * 15;
-    var idealMoves = this.ieds + this.total * 0.3;
+    var markerPenalty = Math.max(0, excessMarkers - 2) * 20;
+    var idealMoves = this.ieds + this.total * 0.333;
     var movesPenalty = Math.max(0, this.moves - idealMoves);
-    var score = 1000 + disarmed * 20 - markerPenalty - movesPenalty;
-    return Math.max(50, score);
+    var score = 500 + disarmed * 15 - markerPenalty - movesPenalty;
+    return Math.max(25, score);
 };
 
 // Attempt to complete the current mission.
@@ -224,7 +224,7 @@ Game.prototype.triggerIED = function (x, y) {
     };
 
     Game.prototype.randomSuccessMessage = function (markers, disarmed) {
-        if (markers <= disarmed) {
+        if (markers <= disarmed + 1) {
             return getRandomItem(IMPRESSIVE_MESSAGES);
         } else {
             return getRandomItem(SUCCESS_MESSAGES);
