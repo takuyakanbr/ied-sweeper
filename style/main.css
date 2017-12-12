@@ -296,11 +296,15 @@ table {
     font-variant: small-caps;
     color: #546E7A;
 }
+.info-bar-header td {
+    white-space: nowrap;
+}
 .info-bar-data {
     font-size: 1.1em;
 }
 .confirm-qns {
     padding: 0 12px 0 6px;
+    white-space: nowrap;
 }
 #result-text {
     color: #2E7D32;
@@ -333,6 +337,24 @@ table {
     }
 }
 
+@media (max-width: 410px) {
+    .game-title {
+        padding-left: 8px;
+    }
+    #scoreboard-container {
+        margin-right: 6px;
+    }
+    .grid {
+        margin: 10px 6px;
+    }
+    #info-bar-container {
+        padding: 7px 6px;
+    }
+    .info-bar {
+        padding: 5px 2px;
+    }
+}
+
 @media (max-width: 380px) {
     .game-title {
         padding-right: 10px;
@@ -342,5 +364,13 @@ table {
     }
     .scoreboard {
         max-width: 170px;
+    }
+}
+
+@media (max-width: 350px) {
+    .game-title {
+        font-size: 1.3em;
+        padding-top: 19px;
+        padding-bottom: 15px;
     }
 }

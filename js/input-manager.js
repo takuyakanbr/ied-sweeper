@@ -39,13 +39,13 @@ InputManager.prototype.emit = function (evt, data) {
 InputManager.prototype.switchInputMode = function () {
     if (this.mode === InputMode.SEARCH) {
         this.mode = InputMode.FLAG1;
-        this.$statsMode.innerText = 'Mark IED';
+        this.$statsMode.innerText = 'IED';
     } else if (this.mode === InputMode.FLAG1) {
         this.mode = InputMode.FLAG2;
-        this.$statsMode.innerText = 'Mark Safe';
+        this.$statsMode.innerText = 'Safe';
     } else if (this.mode === InputMode.FLAG2) {
         this.mode = InputMode.SEARCH;
-        this.$statsMode.innerText = 'Search';
+        this.$statsMode.innerText = 'Open';
     }
 };
 
@@ -129,15 +129,15 @@ InputManager.prototype.attachListeners = function () {
             if (e.which == 49 || e.which == 97) { // 1 / Numpad1
                 e.preventDefault();
                 self.mode = InputMode.SEARCH;
-                self.$statsMode.innerText = 'Search';
+                self.$statsMode.innerText = 'Open';
             } else if (e.which == 50 || e.which == 98) { // 2 / Numpad2
                 e.preventDefault();
                 self.mode = InputMode.FLAG1;
-                self.$statsMode.innerText = 'Mark IED';
+                self.$statsMode.innerText = 'IED';
             } else if (e.which == 51 || e.which == 99) { // 3 / Numpad3
                 e.preventDefault();
                 self.mode = InputMode.FLAG2;
-                self.$statsMode.innerText = 'Mark Safe';
+                self.$statsMode.innerText = 'Safe';
             }
         }
     });

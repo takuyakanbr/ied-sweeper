@@ -400,6 +400,6 @@ Game.prototype.setup = function () {
 };
 
 
-window.requestAnimationFrame(function () {
+window.onload = function () {
     new Game({ rows: 30, cols: 30 });
-});
+};
