@@ -55,7 +55,7 @@ Game.prototype.calculateScore = function (markers, disarmed) {
     var idealMoves = this.ieds + this.total * 0.333;
     var movesPenalty = Math.max(0, this.moves - idealMoves);
     var score = 500 + disarmed * 15 - markerPenalty - movesPenalty;
-    return Math.max(25, score);
+    return Math.max(20, Math.round(score));
 };
 
 // Attempt to complete the current mission.

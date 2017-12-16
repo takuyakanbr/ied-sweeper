@@ -1,2 +1,7 @@
+.idea/
 .sass-cache/
 .vs/
+coverage/
+dist/
+node_modules/
+z.*

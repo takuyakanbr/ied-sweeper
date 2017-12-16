@@ -206,9 +206,9 @@ Grid.prototype.unflagTiles = function (tiles) {
 // Difficulty affects the number of IEDs, and should be between 0 and 10.
 Grid.prototype.randomize = function (x, y, difficulty) {
     var totalTiles = this.rows * this.cols;
-    var bonus = Math.min(Math.max(0, difficulty / 10), 1) * 0.090;
-    var min = (0.110 + bonus) * totalTiles;
-    var max = (0.130 + bonus) * totalTiles;
+    var bonus = Math.min(Math.max(0, difficulty / 10), 1) * 0.080;
+    var min = (0.104 + bonus) * totalTiles;
+    var max = (0.121 + bonus) * totalTiles;
     var ieds = getRandomInt(min, max);
 
     var count = 0;

@@ -8,7 +8,7 @@ function StorageManager() {
 }
 
 StorageManager.prototype.getHighScore = function () {
-    return this.storage.getItem('iedHighScore') || 0;
+    return parseInt(this.storage.getItem('iedHighScore')) || 0;
 };
 
 StorageManager.prototype.setHighScore = function (score) {
